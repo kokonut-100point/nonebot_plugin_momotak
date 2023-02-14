@@ -1,0 +1,66 @@
+from nonebot.adapters.onebot.v11 import Message, MessageSegment,MessageEvent
+from nonebot import on_command
+import nonebot
+from nonebot.params import CommandArg
+from nonebot import message
+from nonebot import CommandGroup
+import asyncio
+from nonebot.rule import to_me
+from html2image import Html2Image
+
+hti = Html2Image()
+HTML = """
+<body style="background-color: rgb(255, 247, 225)">
+<div style="background-color: transparent;border: 1px solid #d8d8d8;border-radius: 10px;grid-column: 2;overflow: hidden;padding: 16px;position: relative;z-index: 1; width: 400px;">
+  <div style="border-bottom: 1px solid #d8d8d8;padding-bottom: 8px;"><span
+          style="border-left: 2px solid #ff92a4;color: #4c5b70;font-size: 18px;font-weight: 700;padding: 0 8px;">羁绊事件</span>
+  </div>
+  <div style="background-color: #ffedf1;height: 110%;left: -5%;position: absolute;text-align: right;top: -5%;width: 110%;z-index: -1;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%">
+      <path d="M58.5 8.2a18.7 18.7 0 00-26.5 0 18.7 18.7 0 00-26.5 0 18.7 18.7 0 000 26.5L32 61.3l26.5-26.6a18.7 18.7 0 000-26.5z" fill="#FFD1DB"></path>
+    </svg>
+  </div>
+  <div style="margin-top: 8px">
+  <span style="background-color: #ff92a4;border: 1px solid #ff92a4;border-radius: 5px;color: #fff;display: block;font-size: 16px;font-weight: 700;padding: 8px 0;position: relative;text-align: center;width: 100%;">前往{}的羁绊剧情</span>
+  </div>
+</div>
+</body>
+"""
+def gen_html(name):
+    return HTML.format(name)
+
+
+momotalk_text = on_command(
+    "羁绊", aliases={"绊"}, block=True, priority=5) # 响应器
+
+
+@momotalk_text.handle()
+async def momotalk(event: MessageEvent, msg: Message = CommandArg()):
+    """提取消息中全部文本生成一张并返回png格式图片"""
+    prompt = msg.extract_plain_text()       # 提取文本
+    if prompt == "" or prompt == None or prompt.isspace():                   # 没有提供文本
+        await momotalk_text.finish("byd你字呢?")                        # finish提示提供文本
+    elif len(prompt) > 18:                                            # 对输入的字符进行判断
+        await momotalk_text.finish("长度超过限制,仅限18位字符") # 
+
+    else:
+      
+      await GGbao(prompt=prompt)
+      message = MessageSegment.image("file:///D:/test.png")  # 需要发送的图片的路径
+      await momotalk_text.finish(message)   # 输出
+
+
+
+async def GGbao(prompt):
+    hti.output_path = 'D:/'  # 图片生成路径，建议自定义
+    return hti.screenshot(html_str=gen_html(f"{prompt}"), save_as='test.png', size=(450, 130))
+      
+  
+      
+    
+          
+
+
+    # message = 'path/to/image/file'
+    # await momotalk_text.finish(message)
+
